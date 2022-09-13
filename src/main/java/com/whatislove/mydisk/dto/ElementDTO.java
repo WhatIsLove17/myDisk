@@ -4,20 +4,19 @@ import com.whatislove.mydisk.models.Type;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.PositiveOrZero;
 
 public class ElementDTO {
 
-    @Id
-    @NotNull
+    @NotEmpty
     private String id;
 
-    @NotNull
     private String url;
 
     private String parentId;
 
+    @PositiveOrZero
     private long size;
 
     @Enumerated(value = EnumType.STRING)
