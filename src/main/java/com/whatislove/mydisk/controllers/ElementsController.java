@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class ElementsController {
@@ -47,7 +48,7 @@ public class ElementsController {
 
         List<Element> resultList = elements.getItems()
                 .stream()
-                .map(this::convertToElement).toList();
+                .map(this::convertToElement).collect(Collectors.toList());
 
 
 
