@@ -58,7 +58,7 @@ public class ElementsController {
                                              @RequestParam
                                              @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME,
                                                      fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ssXXX"}) Date date) {
-        elementsService.delete(id);
+        elementsService.delete(id, date);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -12,10 +12,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,21 +34,22 @@ public class ElementsService {
 
         elementsRepository.saveAll(resultList);
 
-        updateFoldersParameters(resultList);
+        updateFoldersParameters(resultList, false);
     }
 
 
     @Async
-    public void updateFoldersParameters(List<Element> elements) {
+    public void updateFoldersParameters(List<Element> elements, boolean toRemove) {
         List<Element> files = elements.stream().filter(el -> el.getType().equals(Type.FILE))
                 .collect(Collectors.toList());
 
         for (Element file : files) {
             Element cur = file;
-            while(cur.getParentId() != null){
+            while (cur.getParentId() != null) {
                 cur = elementsRepository.findById(cur.getParentId()).orElse(null);
                 if (cur != null) {
-                    cur.setSize(cur.getSize() + file.getSize());
+                    if (toRemove) cur.setSize(cur.getSize() - file.getSize());
+                    else cur.setSize(cur.getSize() + file.getSize());
                     cur.setDate(file.getDate());
                 }
             }
@@ -72,14 +70,14 @@ public class ElementsService {
         return elementsRepository.findById(id);
     }
 
-    public List<ElementDTO> getLastUpdatedElements(Date date){
+    public List<ElementDTO> getLastUpdatedElements(Date date) {
         Date endDate = new Date(date.getTime() - 24 * 60 * 60 * 1000);
         return elementsRepository.findAllByDateBetween(date, endDate)
                 .stream().map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    public List<ElementDTO> getElementHistory(String id, Date start, Date end){
+    public List<ElementDTO> getElementHistory(String id, Date start, Date end) {
         Element element = elementsRepository.findById(id).orElse(null);
 
         if (element == null)
@@ -96,11 +94,13 @@ public class ElementsService {
     }
 
     @Transactional
-    public void delete(String id) {
+    public void delete(String id, Date date) {
         Element element = elementsRepository.findById(id).orElse(null);
 
         if (element == null)
             throw new ElementNotFoundException("Item not found");
+
+        updateFoldersParameters(Collections.singletonList(element), true);
 
         List<Element> children = new ArrayList<>();
         children.add(element);

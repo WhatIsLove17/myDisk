@@ -5,7 +5,9 @@ import com.whatislove.mydisk.models.Type;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.Date;
 
@@ -21,6 +23,7 @@ public class ElementDTO {
     @PositiveOrZero
     private long size;
 
+    @NotNull
     @Enumerated(value = EnumType.STRING)
     private Type type;
 

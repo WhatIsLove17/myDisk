@@ -37,25 +37,37 @@ public class ElementListDTOValidator implements Validator {
         HashSet elementSet = new HashSet(elements.stream().map(el -> el.getId())
                 .collect(Collectors.toList()));
 
-
         if (elementSet.size() < elements.size())
             errors.rejectValue("items", "duplicate ids");
+        List<ElementDTO> folders;
+        List<ElementDTO> files;
 
-        List<ElementDTO> folders = elements.stream().filter(el -> el.getType().equals(Type.FOLDER))
-                .collect(Collectors.toList());
+        try {
+             folders = elements.stream().filter(el -> el.getType().equals(Type.FOLDER))
+                    .collect(Collectors.toList());
 
-        List<ElementDTO> files = elements.stream().filter(el -> el.getType().equals(Type.FILE))
-                .collect(Collectors.toList());
+             files = elements.stream().filter(el -> el.getType().equals(Type.FILE))
+                    .collect(Collectors.toList());
+        }
+        catch (NullPointerException e){
+            throw new ValidationException("Validation Failed");
+        }
 
         for(ElementDTO folder : folders){
             if (folder.getId() == null)
-                errors.rejectValue("items", "Id is null");
+                throw new ValidationException("Validation Failed");
 
             Element element = elementsService.findById(folder.getId()).orElse(null);
             if (element != null){
                 if (element.getType().equals(Type.FILE))
                     errors.rejectValue("items", "Changing item's type is impossible");
             }
+
+            if (folder.getSize() > 0)
+                errors.rejectValue("items", "Folder's size should be zero");
+
+            if (folder.getUrl() != null)
+                errors.rejectValue("items", "Folder's url should be null");
 
             if (folder.getParentId() != null) {
                 Element parent = elementsService.findById(folder.getParentId()).orElse(null);
@@ -84,13 +96,16 @@ public class ElementListDTOValidator implements Validator {
 
         for(ElementDTO file : files){
             if (file.getId() == null)
-                errors.rejectValue("items", "Id is null");
+                throw new ValidationException("Validation Failed");
 
             Element element = elementsService.findById(file.getId()).orElse(null);
             if (element != null){
                 if (element.getType().equals(Type.FOLDER))
                     errors.rejectValue("items", "Changing item's type is impossible");
             }
+
+            if (file.getSize() <= 0)
+                errors.rejectValue("items", "File's size should be more than zero");
 
             if (file.getParentId() != null) {
                 Element parent = elementsService.findById(file.getParentId()).orElse(null);
