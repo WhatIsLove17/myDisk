@@ -6,26 +6,24 @@ import com.whatislove.mydisk.dto.ElementListDTO;
 import com.whatislove.mydisk.models.Element;
 import com.whatislove.mydisk.models.Type;
 import com.whatislove.mydisk.services.ElementsService;
-import com.whatislove.mydisk.util.ErrorResponse;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.internal.util.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ConditionalOnProperty("test.run.integration")
 @SpringBootTest
 @AutoConfigureMockMvc
 public class ElementsDeleteTests {
@@ -73,7 +71,7 @@ public class ElementsDeleteTests {
     }
 
 
-    @Test
+    /*@Test
     public void deleteChildTest() throws Exception {
 
         List<ElementDTO> elements = new ArrayList<>();
@@ -118,5 +116,5 @@ public class ElementsDeleteTests {
         element = elementsService.findById("parentFolder").orElse(null);
         Assert.notNull(element);
         Assert.isNull(element.getSize() == 14);
-    }
+    }*/
 }
