@@ -11,6 +11,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -40,34 +41,82 @@ public class ElementListDTOValidator implements Validator {
         if (elementSet.size() < elements.size())
             errors.rejectValue("items", "duplicate ids");
 
-        for(ElementDTO element : elements){
-            if (element.getId() == null)
+        List<ElementDTO> folders = elements.stream().filter(el -> el.getType().equals(Type.FOLDER))
+                .collect(Collectors.toList());
+
+        List<ElementDTO> files = elements.stream().filter(el -> el.getType().equals(Type.FILE))
+                .collect(Collectors.toList());
+
+        for(ElementDTO folder : folders){
+            if (folder.getId() == null)
                 errors.rejectValue("items", "Id is null");
 
-            Element parent = elementsService.findById(element.getParentId()).orElse(null);
-
-            if (parent != null){
-                if (parent.getType().equals(Type.FILE))
-                    errors.rejectValue("items", "Parent should be folder");
+            Element element = elementsService.findById(folder.getId()).orElse(null);
+            if (element != null){
+                if (element.getType().equals(Type.FILE))
+                    errors.rejectValue("items", "Changing item's type is impossible");
             }
 
-            if (element.getType().equals(Type.FOLDER)){
-                if (element.getUrl() != null)
+            if (folder.getParentId() != null) {
+                Element parent = elementsService.findById(folder.getParentId()).orElse(null);
+
+                if (parent != null) {
+                    if (parent.getType().equals(Type.FILE))
+                        errors.rejectValue("items", "Parent should be folder");
+                }
+                else{
+                    ElementDTO parentEl = folders.stream().filter(el -> el.getId().equals(folder.getParentId()))
+                            .findFirst().orElse(null);
+
+                    if (parentEl == null)
+                        errors.rejectValue("items", "Parent isn't found");
+                    else if (parentEl.getType().equals(Type.FILE))
+                        errors.rejectValue("items", "Parent should be folder");
+                }
+
+                if (folder.getUrl() != null)
                     errors.rejectValue("items", "Folder url should be null");
 
-                if (element.getSize() != 0)
+                if (folder.getSize() != 0)
                     errors.rejectValue("items", "Folder size should be equals zero");
             }
-            else{
-                if (element.getUrl() != null){
-                    if (element.getUrl().length() > 255)
+        }
+
+        for(ElementDTO file : files){
+            if (file.getId() == null)
+                errors.rejectValue("items", "Id is null");
+
+            Element element = elementsService.findById(file.getId()).orElse(null);
+            if (element != null){
+                if (element.getType().equals(Type.FOLDER))
+                    errors.rejectValue("items", "Changing item's type is impossible");
+            }
+
+            if (file.getParentId() != null) {
+                Element parent = elementsService.findById(file.getParentId()).orElse(null);
+
+                if (parent != null) {
+                    if (parent.getType().equals(Type.FILE))
+                        errors.rejectValue("items", "Parent should be folder");
+                }
+                else{
+                    ElementDTO parentEl = folders.stream().filter(el -> el.getId().equals(file.getParentId()))
+                            .findFirst().orElse(null);
+                    if (parentEl == null)
+                        errors.rejectValue("items", "Parent isn't found");
+                    else if (parentEl.getType().equals(Type.FILE))
+                        errors.rejectValue("items", "Parent should be folder");
+                }
+
+                if (file.getUrl() != null) {
+                    if (file.getUrl().length() > 255)
                         errors.rejectValue("items", "Url size should be less than 255");
                 }
 
-                if (element.getSize() == 0)
+                if (file.getSize() == 0)
                     errors.rejectValue("items", "File size should be more than zero");
-            }
 
+            }
         }
 
     }

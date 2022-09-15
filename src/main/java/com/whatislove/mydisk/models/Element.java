@@ -1,10 +1,9 @@
 package com.whatislove.mydisk.models;
 
-import org.springframework.stereotype.Component;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -16,7 +15,6 @@ public class Element {
     @NotNull
     private String id;
 
-    @NotNull
     @Column(name = "url")
     private String url;
 
@@ -33,6 +31,15 @@ public class Element {
     @Enumerated(value = EnumType.STRING)
     @Column(name = "type")
     private Type type;
+
+
+    @ManyToOne
+    @JoinColumn(name = "parent_id", referencedColumnName = "id", insertable=false, updatable=false)
+    private Element parent;
+
+    @OneToMany(mappedBy = "parent")
+    private List<Element> children;
+
 
     public Element() {
     }
@@ -94,6 +101,14 @@ public class Element {
         this.type = type;
     }
 
+    public List<Element> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Element> children) {
+        this.children = children;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -113,4 +128,7 @@ public class Element {
         result = 31 * result + (parentId != null ? parentId.hashCode() : 0);
         return result;
     }
+
+
+
 }

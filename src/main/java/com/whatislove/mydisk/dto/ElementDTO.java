@@ -1,11 +1,13 @@
 package com.whatislove.mydisk.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.whatislove.mydisk.models.Type;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.PositiveOrZero;
+import java.util.Date;
 
 public class ElementDTO {
 
@@ -21,6 +23,9 @@ public class ElementDTO {
 
     @Enumerated(value = EnumType.STRING)
     private Type type;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+    private Date date;
 
     public String getId() {
         return id;
@@ -60,5 +65,13 @@ public class ElementDTO {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
