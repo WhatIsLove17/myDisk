@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class ElementsImportsTests {
 
-    private final MockMvc mockMvc;
+    /*private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
 
     private final ElementsService elementsService;
@@ -236,5 +236,5 @@ public class ElementsImportsTests {
         Assert.notNull(element);
         Assert.isTrue(element.getSize() == 39);
     }
-
+*/
 }
